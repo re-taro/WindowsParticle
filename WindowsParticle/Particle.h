@@ -1,6 +1,6 @@
 #pragma once
 #include <windows.h>
-#include "Timer.cpp"
+#include "Timer.h"
 
 class Particle
 {

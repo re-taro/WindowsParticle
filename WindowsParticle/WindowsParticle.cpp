@@ -3,6 +3,9 @@
 
 #include "framework.h"
 #include "WindowsParticle.h"
+#include "Particle.h"
+#include <cstdlib>
+#include <ctime>
 
 #define MAX_LOADSTRING 100
 
@@ -10,6 +13,8 @@
 HINSTANCE hInst;                                // 現在のインターフェイス
 WCHAR szTitle[MAX_LOADSTRING];                  // タイトル バーのテキスト
 WCHAR szWindowClass[MAX_LOADSTRING];            // メイン ウィンドウ クラス名
+size_t nparticle;
+Particle* particle;
 
 // このコード モジュールに含まれる関数の宣言を転送します:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -142,14 +147,50 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
+    case WM_CREATE:
+        srand(static_cast<unsigned int>(time(NULL)));
+        nparticle = 400;
+        particle = new Particle[nparticle];
+        POINT cursor;
+        GetCursorPos(&cursor);
+        ScreenToClient(hWnd, &cursor);
+        for (size_t i = 0; i < nparticle; i++)
+        {
+            particle[i].setCursorPos(cursor.x, cursor.y);
+            particle[i].init();
+        }
+        SetTimer(hWnd, 1, 30, NULL);
+        break;
+    case WM_TIMER:
+        GetCursorPos(&cursor);
+        ScreenToClient(hWnd, &cursor);
+        for (size_t i = 0; i < nparticle; i++)
+        {
+            particle[i].setCursorPos(cursor.x, cursor.y);
+            particle[i].update();
+        }
+        InvalidateRect(hWnd, NULL, TRUE);
+        break;
     case WM_PAINT:
         {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
             // TODO: HDC を使用する描画コードをここに追加してください...
+            for (size_t i = 0; i < nparticle; i++)
+            {
+                particle[i].setHDC(hdc);
+                particle[i].draw();
+            }
             EndPaint(hWnd, &ps);
         }
         break;
+    case WM_CLOSE:
+        KillTimer(hWnd, 1);
+        for (size_t i = 0; i < nparticle; i++)
+        {
+            particle[i].clean();
+        }
+        delete[] particle;
     case WM_DESTROY:
         PostQuitMessage(0);
         break;

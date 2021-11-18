@@ -12,7 +12,7 @@ void Timer::reset(void)
 
 double Timer::get(void)
 {
-	return(GetTickCount64() - start) / 100.;
+	return(GetTickCount64() - start) / 1000.;
 }
 
 Timer::~Timer(void){}
