@@ -65,3 +65,5 @@ double Particle::rand(void)
 {
 	return static_cast<double>(::rand()) / RAND_MAX;
 }
+
+void Particle::clean(void) {}
